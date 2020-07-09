@@ -15,13 +15,7 @@ Mail::Mail() :
     pass(QLatin1String("Pass")),
     subject(QLatin1String("SmtpClient for Qt - Demo"))
 {
-    smtp = new Sender(smtpServer, smtpPort, Sender::SslConnection);
-    message = new MimeMessage;
-    sender = new EmailAddress(senderMail, senderName);
-    to = new EmailAddress(addresseeMail, addresseeName);
-    text = new MimeText(textOfMail);
-    file = new QFile(pathToFile);
-    document = new MimeAttachment(file);
+    
 }
 
 Mail::~Mail()
@@ -37,13 +31,21 @@ Mail::~Mail()
 
 bool Mail::send_mail()
 {
+    smtp = new Sender(smtpServer, smtpPort, Sender::SslConnection);
+    message = new MimeMessage;
+    sender = new EmailAddress(senderMail, senderName);
+    to = new EmailAddress(addresseeMail, addresseeName);
+    text = new MimeText(textOfMail);
+    file = new QFile(pathToFile);
+    document = new MimeAttachment(file);
     smtp->setUser(user);
     smtp->setPassword(pass);
     message->setSender(*sender);
     message->addTo(*to);
     message->setSubject(subject);
     message->addPart(text);
-    message->addPart(document);
+    if(file->exists())
+        message->addPart(document);
 
     if (!smtp->sendMail(*message)) {
         qDebug() << "Failed to send mail!" << smtp->lastError();
